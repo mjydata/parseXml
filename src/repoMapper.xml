@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cisco.qdreport.qualitydashboard.dao.reportDao">
+
+    <resultMap type="report" id="reportResult">git
+        <result property="jobName" column="jobName" />
+        <result property="deployTime" column="deployTime" />
+        <result property="repoName" column="repoName" />
+        <result property="lastestTar" column="lastestTar" />
+        <result property="componentName" column="componentName" />
+        <result property="buildLink" column="buildLink" />
+        <result property="environment" column="environment" />
+    </resultMap>
+
+    <resultMap type="repoBean" id="repoBeanResult">
+        <result property="repoName" column="repoName" />
+        <result property="componentName" column="componentName" />
+        <collection property="Envs" resultMap="EnvBeanResult" />
+    </resultMap>
+
+    <resultMap type="EnvBean" id="EnvBeanResult">
+        <result property="environment" column="environment" />
+        <collection property="jobs" resultMap="JobBeanResult" />
+    </resultMap>
+
+    <resultMap type="JobBean" id="JobBeanResult">
+        <result property="jobName" column="jobName" />
+        <result property="deployTime" column="deployTime" />
+        <result property="buildLink" column="buildLink" />
+        <result property="lastestTar" column="lastestTar" />
+    </resultMap>
+
+
+
+
+    <insert id="insertByRepoName" parameterType="Job">
+        INSERT INTO report_service.report(
+        repoName,
+        componentName,
+        jobName,
+        lastestTar,
+        deployTime,
+         environment,
+         buildLink
+        ) values (
+         #{repoName},
+         #{componentName},
+        #{jobName},
+        #{lastestTar},
+        #{deployTime},
+        #{environment},
+        #{buildLink}
+        )
+    </insert>
+
+    <select id="selectLastestFromReport" resultType="repoBean" resultMap="repoBeanResult">
+       SELECT r.repoName, r.componentName, r.jobName, r.lastestTar, r.deployTime,r.environment,r.buildLink
+       FROM report r
+       WHERE r.deployTime in (
+       SELECT max(deployTime)
+       FROM report
+       GROUP BY jobName,environment);
+    </select>
+   、
+
+</mapper>
